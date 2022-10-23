@@ -1,0 +1,36 @@
+// GENERATED FILE, DO NOT EDIT
+
+export const post = function<T,U>(path: string, req?: T): Promise<U> {
+  return new Promise<U>((resolve, reject) =>  {
+    const { host, protocol } = window.location
+    const url = `${protocol}//${host}${path}`
+
+    let fetchArg = {
+      method: 'POST',
+      credentials: 'same-origin',
+    } as RequestInit
+
+    if (req) {
+      fetchArg.headers = { 'Content-Type': 'application/json' }
+      fetchArg.body = JSON.stringify(req)
+    }
+
+    fetch(url, fetchArg).then(resp => resp.json().then(obj => resolve(obj as U)))
+  })
+}
+
+{{ range .Interfaces }}
+export interface {{ .Name }} {
+{{- range .Fields }}
+  {{ .Name }}: {{ .Type }}
+{{- end }}
+}
+{{ end }}
+
+export const {{ .ClassName }} = {
+{{- range .Methods }}
+  {{ .SnakeName }}: ({{ if .ReqType }}{{ .ParamName }}: {{ .ReqType }}{{ end }}) => {
+    return post('/s/{{ .SnakeName }}'{{ if .ReqType }}, {{ .ParamName }}{{ end }}){{ if .RespType }} as Promise<{{ .RespType }}>{{ end }}
+  },
+{{- end }}
+}
