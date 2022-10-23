@@ -45,5 +45,27 @@ Each argument and result is optional;
 e.g. a method is still eligible if its signature is `func(X) error`.
 
 A method with this signature can be turned into an HTTP handler
-using [mid.JSON](pkg.go.dev/github.com/bobg/mid#JSON)
+using [mid.JSON](https://pkg.go.dev/github.com/bobg/mid#JSON)
 from the github.com/bobg/mid library.
+
+## Output
+
+Sample Typescript output can be seen at [github.com/bobg/tsdecls/blob/master/_testdata/want.ts](https://github.com/bobg/tsdecls/blob/master/_testdata/want.ts).
+
+The output begins with the definition of a function, `post`,
+for JSON-encoding the (optional) request body,
+sending a request to a given endpoint on the server
+(presumed to be at the same host as in `window.location`),
+and JSON-decoding the (optional) response.
+
+There follows a number of `interface` definitions for the types used in the various methods.
+This list of definitions is topologically sorted;
+i.e., if A is used in the definition of B,
+then the definition of A will appear first.
+
+Finally, there is an object with the same name as the Go type.
+Each eligible Go method `FooBar` is turned into a Typescript method `foo_bar`
+(i.e., “CamelCase” is converted to “snake_case”),
+which takes an argument of the appropriate request type (if any),
+calls `post` with the endpoint `/s/foo_bar` and the request argument,
+and casts the result of that to a `Promise` of the response type (if any).

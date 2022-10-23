@@ -3,19 +3,19 @@ package testdata
 type Server struct{}
 
 type (
-	foobarReqType struct{
+	reqType struct{
 		A int
 		B string
 	}
 
-	foobarRespType struct {
+	respType struct {
 		X string
 		Y int
 	}
 )
 
-func (Server) FooBar(req foobarReqType) foobarRespType {
-	return foobarRespType{
+func (Server) FooBar(req reqType) respType {
+	return respType{
 		X: req.B,
 		Y: req.A,
 	}

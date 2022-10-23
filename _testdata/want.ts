@@ -20,19 +20,19 @@ export const post = function<T,U>(path: string, req?: T): Promise<U> {
 }
 
 
-export interface foobarReqType {
+export interface reqType {
   A: number
   B: string
 }
 
-export interface foobarRespType {
+export interface respType {
   X: string
   Y: number
 }
 
 
 export const Server = {
-  foo_bar: (req: foobarReqType) => {
-    return post('/s/foo_bar', req) as Promise<foobarRespType>
+  foo_bar: (req: reqType) => {
+    return post('/s/foo_bar', req) as Promise<respType>
   },
 }
