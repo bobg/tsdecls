@@ -67,5 +67,7 @@ Finally, there is an object with the same name as the Go type.
 Each eligible Go method `FooBar` is turned into a Typescript method `foo_bar`
 (i.e., “CamelCase” is converted to “snake_case”),
 which takes an argument of the appropriate request type (if any),
-calls `post` with the endpoint `/s/foo_bar` and the request argument,
+calls `post` with the endpoint `PREFIX/foo_bar`
+(for some caller-defined PREFIX)
+and the request argument,
 and casts the result of that to a `Promise` of the response type (if any).

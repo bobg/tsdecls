@@ -14,7 +14,7 @@ func TestTsdecls(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := new(bytes.Buffer)
-	if err = Write(got, "_testdata", "Server"); err != nil {
+	if err = Write(got, "_testdata", "Server", "/s"); err != nil {
 		t.Fatal(err)
 	}
 

@@ -28,8 +28,10 @@ var tmpl = template.Must(template.New("").Parse(tmplstr))
 // Write reads the Go package in dir,
 // locates the given typename,
 // and writes Typescript declarations for the type's eligible methods to w.
-func Write(w io.Writer, dir, typename string) error {
+// The resulting Typescript methods send post requests to endpoints beginning with prefix.
+func Write(w io.Writer, dir, typename, prefix string) error {
 	data := tsDecls{
+		Prefix:    prefix,
 		ClassName: typename,
 	}
 
@@ -179,6 +181,7 @@ type (
 		SnakeName, ParamName, ReqType, RespType string
 	}
 	tsDecls struct {
+		Prefix     string
 		ClassName  string
 		Interfaces []tsInterface
 		Methods    []tsMethod

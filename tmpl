@@ -28,9 +28,10 @@ export interface {{ .Name }} {
 {{ end }}
 
 export const {{ .ClassName }} = {
+{{- $prefix := .Prefix }}
 {{- range .Methods }}
   {{ .SnakeName }}: ({{ if .ReqType }}{{ .ParamName }}: {{ .ReqType }}{{ end }}) => {
-    return post('/s/{{ .SnakeName }}'{{ if .ReqType }}, {{ .ParamName }}{{ end }}){{ if .RespType }} as Promise<{{ .RespType }}>{{ end }}
+    return post('{{ $prefix }}/{{ .SnakeName }}'{{ if .ReqType }}, {{ .ParamName }}{{ end }}){{ if .RespType }} as Promise<{{ .RespType }}>{{ end }}
   },
 {{- end }}
 }
