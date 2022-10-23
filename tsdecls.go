@@ -3,6 +3,10 @@ package tsdecls
 import (
 	_ "embed"
 	"fmt"
+	"go/ast"
+	"go/importer"
+	"go/parser"
+	"go/token"
 	"go/types"
 	"io"
 	"reflect"
@@ -14,7 +18,6 @@ import (
 	"github.com/bobg/go-generics/set"
 	"github.com/fatih/camelcase"
 	"github.com/pkg/errors"
-	"golang.org/x/tools/go/packages"
 )
 
 //go:embed tmpl
@@ -22,23 +25,38 @@ var tmplstr string
 
 var tmpl = template.Must(template.New("").Parse(tmplstr))
 
+// Write reads the Go package in dir,
+// locates the given typename,
+// and writes Typescript declarations for the type's eligible methods to w.
 func Write(w io.Writer, dir, typename string) error {
 	data := tsDecls{
 		ClassName: typename,
 	}
 
-	config := &packages.Config{Mode: packages.NeedTypes | packages.NeedTypesInfo}
-	pkgs, err := packages.Load(config, dir)
+	fset := token.NewFileSet()
+	astpkgs, err := parser.ParseDir(fset, dir, nil, 0)
 	if err != nil {
 		return errors.Wrapf(err, "loading %s", dir)
 	}
-	if len(pkgs) != 1 {
-		return fmt.Errorf("want 1 package in %s, got %d", dir, len(pkgs))
+	var astpkg *ast.Package
+	for name, p := range astpkgs {
+		if strings.HasSuffix(name, "_test") {
+			continue
+		}
+		if astpkg != nil {
+			return fmt.Errorf("found multiple packages in %s", dir)
+		}
+		astpkg = p
 	}
-	if pkgs[0].Types == nil {
-		return fmt.Errorf("pkgs[0].Types == nil")
+	if astpkg == nil {
+		return fmt.Errorf("found no packages in %s", dir)
 	}
-	scope := pkgs[0].Types.Scope()
+	conf := &types.Config{Importer: importer.Default()}
+	pkg, err := conf.Check(astpkg.Name, fset, maps.Values(astpkg.Files), nil)
+	if err != nil {
+		return errors.Wrapf(err, "type-checking %s", dir)
+	}
+	scope := pkg.Scope()
 	if scope == nil {
 		return fmt.Errorf("scope == nil")
 	}
