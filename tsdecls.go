@@ -14,6 +14,7 @@ import (
 	"github.com/bobg/go-generics/set"
 	"github.com/fatih/camelcase"
 	"github.com/pkg/errors"
+	"go.uber.org/multierr"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -44,6 +45,13 @@ func Write(w io.Writer, dir, typename, prefix string) error {
 		return fmt.Errorf("got %d packages, want 1", len(pkgs))
 	}
 	pkg := pkgs[0]
+	if len(pkg.Errors) > 0 {
+		var errs error
+		for _, e := range pkg.Errors {
+			errs = multierr.Append(errs, e)
+		}
+		return errors.Wrapf(errs, "loading %s", pkg.PkgPath)
+	}
 	if pkg.Types == nil {
 		return fmt.Errorf("pkgs.Types == nil")
 	}
